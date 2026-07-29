@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1f4f46" />
+  <title>車両管理アプリ</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <style>
+    :root{--bg:#f3f6f5;--card:#fff;--ink:#17312c;--muted:#6c7c78;--line:#d9e2df;--main:#1f6f5f;--main2:#174f45;--danger:#b33a3a;--soft:#e7f3ef;--orange:#f5b97a}
+    *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;background:var(--bg);color:var(--ink)}button,input,select,textarea{font:inherit}button{cursor:pointer}
+    header{position:sticky;top:0;z-index:20;background:rgba(243,246,245,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:12px 14px 10px}
+    .headrow{display:flex;align-items:center;justify-content:space-between;gap:10px}.title{font-size:20px;font-weight:800}.version{font-size:11px;color:var(--muted);background:#fff;border:1px solid var(--line);padding:4px 7px;border-radius:999px}
+    main{max-width:760px;margin:auto;padding:14px 14px 100px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 4px 16px rgba(25,55,48,.05);margin-bottom:12px}
+    .monthbar{display:grid;grid-template-columns:44px 1fr 44px;gap:8px;align-items:center}.monthbar button{height:40px;border:none;border-radius:12px;background:var(--soft);color:var(--main2);font-size:20px}.monthtitle{text-align:center;font-size:18px;font-weight:800}
+    .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.metric{background:var(--soft);border-radius:12px;padding:10px 8px;text-align:center}.metric b{display:block;font-size:20px;margin-top:3px}.metric span{font-size:11px;color:var(--muted)}
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.primary,.secondary,.danger{border:none;border-radius:12px;padding:12px;font-weight:800}.primary{background:var(--main);color:white}.secondary{background:#fff;color:var(--main2);border:1px solid var(--line)}.danger{background:#fff0f0;color:var(--danger);border:1px solid #f0caca}
+    .daylist{display:flex;flex-direction:column;gap:8px}.day{display:grid;grid-template-columns:52px 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);background:#fff;border-radius:13px;padding:10px}.datebox{text-align:center}.datebox b{display:block;font-size:17px}.datebox span{font-size:12px;color:var(--muted)}.daymain{min-width:0}.route{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sub{font-size:12px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.km{font-weight:800;color:var(--main2)}.off{opacity:.65}.today{outline:2px solid #74a99d}.direct{display:inline-block;font-size:10px;background:#fff1d7;color:#8d5c00;padding:2px 5px;border-radius:999px;margin-left:4px}
+    .fab{position:fixed;right:18px;bottom:20px;z-index:30;width:60px;height:60px;border-radius:50%;border:none;background:var(--main);color:#fff;font-size:30px;box-shadow:0 8px 24px rgba(22,85,72,.35)}
+    dialog{border:none;border-radius:18px;width:min(92vw,560px);padding:0;box-shadow:0 20px 60px rgba(0,0,0,.25)}dialog::backdrop{background:rgba(0,0,0,.35)}.modalhead{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;z-index:2}.modalbody{padding:14px 16px 18px;max-height:76vh;overflow:auto}.close{border:none;background:var(--soft);width:36px;height:36px;border-radius:50%;font-size:20px}.field{margin-bottom:13px}.field label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:5px}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px;background:#fff}.field textarea{min-height:72px;resize:vertical}.twocol{display:grid;grid-template-columns:1fr 1fr;gap:10px}.checkline{display:flex;align-items:center;gap:8px;margin:8px 0 14px}.hint{font-size:11px;color:var(--muted)}.modalactions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+    .chips{display:flex;flex-wrap:wrap;gap:7px}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 10px;font-size:12px}.chip.selected{background:var(--soft);border-color:#8eb9ae;color:var(--main2);font-weight:700}
+    .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    #printArea{display:none}
+    @media print{
+      body>*:not(#printArea){display:none!important}#printArea{display:block!important;color:#000;background:#fff}.report{width:190mm;margin:0 auto;font-family:"Yu Gothic",sans-serif;font-size:9.5pt}.rtitle{text-align:center;font-weight:800;font-size:15pt;margin:7mm 0 2mm}.rname{margin-bottom:3mm}.report table{width:100%;border-collapse:collapse;table-layout:fixed}.report th,.report td{border:1px solid #000;padding:1.2mm 1mm;height:7mm}.report th{text-align:center}.c1{width:8mm}.c2{width:9mm}.c3{width:9mm}.c4,.c5{width:30mm}.c6{width:28mm}.num{text-align:right}.total1{background:#c9f7c8}.total2{background:#c9f4f6}.total3{background:#ffd09e;font-weight:800}.no-border{border:none!important}.report-footer{margin-top:3mm;text-align:right}.pagebreak{page-break-after:always}
+    }
+  </style>
+</head>
+<body>
+<header><div class="headrow"><div class="title">車両管理</div><div class="version">v1.0.0</div></div></header>
+<main>
+  <section class="card">
+    <div class="monthbar"><button id="prevMonth">‹</button><div class="monthtitle" id="monthTitle"></div><button id="nextMonth">›</button></div>
+    <div class="summary">
+      <div class="metric"><span>業務走行</span><b id="businessKm">0km</b></div>
+      <div class="metric"><span>通勤距離</span><b id="commuteKm">0km</b></div>
+      <div class="metric"><span>総走行</span><b id="totalKm">0km</b></div>
+    </div>
+  </section>
+  <section class="card actions">
+    <button class="secondary" id="settingsBtn">基本設定</button>
+    <button class="primary" id="printBtn">月報を作成</button>
+  </section>
+  <section class="daylist" id="dayList"></section>
+</main>
+<button class="fab" id="addBtn" aria-label="記録を追加">＋</button>
+
+<dialog id="entryDialog">
+  <div class="modalhead"><b id="entryTitle">記録を入力</b><button class="close" data-close="entryDialog">×</button></div>
+  <form class="modalbody" id="entryForm">
+    <input type="hidden" id="entryDateKey" />
+    <div class="field"><label>日付</label><input type="date" id="entryDate" required /></div>
+    <div class="twocol">
+      <div class="field"><label>到着時メーター</label><input type="number" inputmode="numeric" id="startMeter" placeholder="例 79850" /></div>
+      <div class="field"><label>帰社時メーター</label><input type="number" inputmode="numeric" id="endMeter" placeholder="例 79873" /></div>
+    </div>
+    <div class="field"><label>走行距離</label><input id="distancePreview" disabled value="0 km（自動計算）" /></div>
+    <label class="checkline"><input type="checkbox" id="directFlag" /> 直行・直帰あり</label>
+    <div class="field"><label>よく使う訪問先</label><div class="chips" id="clientChips"></div></div>
+    <div class="field"><label>訪問先（複数可）</label><textarea id="destinations" placeholder="例：パールハイム㈱、㈱森田"></textarea><div class="hint">登録済みの訪問先は上のボタンから追加できます。</div></div>
+    <div class="field"><label>メモ</label><textarea id="memo" placeholder="任意"></textarea></div>
+    <div class="modalactions"><button type="button" class="danger" id="deleteEntry">この日の記録を削除</button><button class="primary" type="submit">保存</button></div>
+  </form>
+</dialog>
+
+<dialog id="settingsDialog">
+  <div class="modalhead"><b>基本設定</b><button class="close" data-close="settingsDialog">×</button></div>
+  <form class="modalbody" id="settingsForm">
+    <div class="field"><label>氏名</label><input id="personName" placeholder="例：小島 裕司" /></div>
+    <div class="settings-grid">
+      <div class="field"><label>通勤片道距離（km）</label><input type="number" step="0.1" id="oneWayKm" /></div>
+      <div class="field"><label>直行直帰加算（片道・km）</label><input type="number" step="0.1" id="directOneWayKm" /></div>
+    </div>
+    <div class="field"><label>訪問先マスター（1行に1件）</label><textarea id="clientMaster" style="min-height:180px"></textarea></div>
+    <div class="hint">データはこの端末内に保存されます。Safariの履歴・サイトデータを削除すると消えることがあります。</div>
+    <div class="modalactions"><button type="button" class="secondary" id="exportBtn">バックアップ</button><button class="primary" type="submit">保存</button></div>
+    <div style="margin-top:8px"><label class="secondary" style="display:block;text-align:center;padding:12px;border-radius:12px">バックアップを復元<input type="file" id="importFile" accept="application/json" hidden /></label></div>
+  </form>
+</dialog>
+
+<div id="printArea"></div>
+<script>
+const APP_VERSION='1.0.0';
+const STORE='vehicleLogAppDataV1';
+const defaults={settings:{personName:'小島 裕司',oneWayKm:5,directOneWayKm:7.5,clients:['パールハイム㈱','㈱日本水工社','㈱FBA篠塚','㈲メゾンド下屋敷','（同）コーポ高橋','㈱招きレコーズ','㈱森田','㈲コンフォート','㈱ASAHIYA','㈱AKIKAZE','㈲栄グリーンハイツ','㈲ワッツプランニング','㈱スティルルームス','㈱一心','㈱幸信','㈲豊田油店']},entries:{}};
+let data=load();let cursor=new Date();cursor.setDate(1);
+function load(){try{return {...defaults,...JSON.parse(localStorage.getItem(STORE)||'{}'),settings:{...defaults.settings,...(JSON.parse(localStorage.getItem(STORE)||'{}').settings||{})}}}catch{return structuredClone(defaults)}}
+function save(){localStorage.setItem(STORE,JSON.stringify(data))}
+const $=s=>document.querySelector(s);
+const fmt=n=>Number(n||0).toLocaleString('ja-JP');
+const keyOf=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const daysInMonth=(y,m)=>new Date(y,m+1,0).getDate();
+const weekdays=['日','月','火','水','木','金','土'];
+function monthEntries(){const p=`${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}`;return Object.entries(data.entries).filter(([k])=>k.startsWith(p))}
+function calc(){let business=0,workdays=0,directCount=0;for(const [,e] of monthEntries()){const s=Number(e.startMeter),en=Number(e.endMeter);if(s&&en&&en>=s){business+=en-s;workdays++}if(e.directFlag)directCount++}const commute=data.settings.oneWayKm*2*workdays;const direct=data.settings.directOneWayKm*directCount;return{business,workdays,directCount,commute,direct,total:business+commute+direct}}
+function render(){const y=cursor.getFullYear(),m=cursor.getMonth();$('#monthTitle').textContent=`${y}年${m+1}月`;const c=calc();$('#businessKm').textContent=`${fmt(c.business)}km`;$('#commuteKm').textContent=`${fmt(c.commute)}km`;$('#totalKm').textContent=`${fmt(c.total)}km`;const list=$('#dayList');list.innerHTML='';const today=keyOf(new Date());for(let d=1;d<=daysInMonth(y,m);d++){const dt=new Date(y,m,d),k=keyOf(dt),e=data.entries[k],distance=e&&e.startMeter&&e.endMeter?Number(e.endMeter)-Number(e.startMeter):0;const node=document.createElement('button');node.className='day'+(!e?' off':'')+(k===today?' today':'');node.innerHTML=`<div class="datebox"><b>${d}</b><span>${weekdays[dt.getDay()]}</span></div><div class="daymain"><div class="route">${e?.destinations||'記録なし'}${e?.directFlag?'<span class="direct">直行直帰</span>':''}</div><div class="sub">${e?.startMeter?fmt(e.startMeter)+' → '+fmt(e.endMeter||e.startMeter):'メーター未入力'}</div></div><div class="km">${fmt(distance)}km</div>`;node.onclick=()=>openEntry(k);list.appendChild(node)}}
+function openEntry(k=keyOf(new Date())){const e=data.entries[k]||{};$('#entryDateKey').value=k;$('#entryDate').value=k;$('#startMeter').value=e.startMeter||suggestStart(k)||'';$('#endMeter').value=e.endMeter||'';$('#directFlag').checked=!!e.directFlag;$('#destinations').value=e.destinations||'';$('#memo').value=e.memo||'';renderChips();updateDistance();$('#deleteEntry').style.visibility=data.entries[k]?'visible':'hidden';$('#entryDialog').showModal()}
+function suggestStart(k){const keys=Object.keys(data.entries).filter(x=>x<k).sort().reverse();for(const x of keys){if(data.entries[x].endMeter)return data.entries[x].endMeter}return''}
+function renderChips(){const box=$('#clientChips');box.innerHTML='';for(const c of data.settings.clients){const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=c;b.onclick=()=>{const ta=$('#destinations');const arr=ta.value.split(/[、,，\n]/).map(x=>x.trim()).filter(Boolean);if(!arr.includes(c))arr.push(c);ta.value=arr.join('、');b.classList.add('selected')};box.appendChild(b)}}
+function updateDistance(){const s=Number($('#startMeter').value),e=Number($('#endMeter').value);$('#distancePreview').value=(s&&e&&e>=s?`${fmt(e-s)} km`:'0 km（自動計算）')}
+$('#startMeter').oninput=$('#endMeter').oninput=updateDistance;
+$('#entryDate').onchange=()=>{$('#entryDateKey').value=$('#entryDate').value};
+$('#entryForm').onsubmit=ev=>{ev.preventDefault();const k=$('#entryDate').value;const old=$('#entryDateKey').value;if(old!==k)delete data.entries[old];data.entries[k]={startMeter:$('#startMeter').value,endMeter:$('#endMeter').value,directFlag:$('#directFlag').checked,destinations:$('#destinations').value.trim(),memo:$('#memo').value.trim()};save();$('#entryDialog').close();render()};
+$('#deleteEntry').onclick=()=>{const k=$('#entryDateKey').value;if(confirm('この日の記録を削除しますか？')){delete data.entries[k];save();$('#entryDialog').close();render()}};
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$('#'+b.dataset.close).close());
+$('#addBtn').onclick=()=>openEntry();$('#prevMonth').onclick=()=>{cursor.setMonth(cursor.getMonth()-1);render()};$('#nextMonth').onclick=()=>{cursor.setMonth(cursor.getMonth()+1);render()};
+$('#settingsBtn').onclick=()=>{$('#personName').value=data.settings.personName;$('#oneWayKm').value=data.settings.oneWayKm;$('#directOneWayKm').value=data.settings.directOneWayKm;$('#clientMaster').value=data.settings.clients.join('\n');$('#settingsDialog').showModal()};
+$('#settingsForm').onsubmit=e=>{e.preventDefault();data.settings={personName:$('#personName').value.trim(),oneWayKm:Number($('#oneWayKm').value||0),directOneWayKm:Number($('#directOneWayKm').value||0),clients:$('#clientMaster').value.split('\n').map(x=>x.trim()).filter(Boolean)};save();$('#settingsDialog').close();render()};
+$('#exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`車両管理バックアップ_${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href)};
+$('#importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const obj=JSON.parse(await f.text());if(!obj.entries||!obj.settings)throw 0;data=obj;save();alert('復元しました');$('#settingsDialog').close();render()}catch{alert('バックアップファイルを読み込めませんでした')}};
+function buildReport(){const y=cursor.getFullYear(),m=cursor.getMonth(),n=daysInMonth(y,m),c=calc();let rows='';for(let d=1;d<=31;d++){const valid=d<=n,dt=new Date(y,m,d),k=keyOf(dt),e=valid?data.entries[k]:null;const dist=e?.startMeter&&e?.endMeter?Number(e.endMeter)-Number(e.startMeter):0;rows+=`<tr><td class="c1">${d}</td><td class="c2">${valid?weekdays[dt.getDay()]:''}</td><td class="c3">${e?.directFlag?'○':''}</td><td class="c4 num">${e?.startMeter?fmt(e.startMeter)+' km':''}</td><td class="c5 num">${e?.endMeter?fmt(e.endMeter)+' km':''}</td><td class="c6 num">${fmt(dist)} km</td><td>${e?.destinations||''}</td></tr>`}
+const era=y-2018;$('#printArea').innerHTML=`<div class="report"><div class="rtitle">令和${era}年${m+1}月分　車両管理月報</div><div class="rname">氏名：　${data.settings.personName||''}</div><table><thead><tr><th class="c1">日付</th><th class="c2">曜日</th><th class="c3">直行<br>直帰</th><th class="c4">到着時メータ</th><th class="c5">帰社時メータ</th><th class="c6">走行距離</th><th>訪問先（所在地）</th></tr></thead><tbody>${rows}<tr class="total1"><td colspan="5" style="text-align:center">計</td><td class="num">${fmt(c.business)} km</td><td>←業務走行距離</td></tr><tr class="total2"><td colspan="5">（片道：${data.settings.oneWayKm}）km × 2 ×（出勤日数：${c.workdays}）日</td><td class="num">${fmt(c.commute)} km</td><td></td></tr><tr class="total2"><td colspan="5">（片道：${data.settings.directOneWayKm}）km ×（直行直帰回数：${c.directCount}）回</td><td class="num">${fmt(c.direct)} km</td><td>←直行直帰</td></tr><tr class="total3"><td colspan="5" style="text-align:center">総走行距離</td><td class="num">${fmt(c.total)} km</td><td class="no-border"></td></tr></tbody></table><div class="report-footer">当月精算ガソリン代：　　　　　　　　　円</div></div>`}
+$('#printBtn').onclick=()=>{buildReport();setTimeout(()=>window.print(),80)};
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+render();
+</script>
+</body>
+</html>
